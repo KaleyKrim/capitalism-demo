@@ -2,7 +2,7 @@ import express from "express";
 import { User } from "../modules/User";
 
 export async function authenticator(req: express.Request, res: express.Response, next: express.NextFunction) {
-	const userId = <string>req.headers.userId;
+	const userId = <string>req.headers.userid;
 	if (!userId || !userId.length) {
 		res.send({ error: "no userId header" });
 		return;
