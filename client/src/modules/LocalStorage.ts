@@ -1,4 +1,5 @@
-export enum GAME_STATE_PROPERTIES {
+export const GAME_STATE_PROPERTIES = [
+	"updatedAt",
 	"userId",
 	"totalCoins",
 	"updatedAt",
@@ -8,7 +9,16 @@ export enum GAME_STATE_PROPERTIES {
 	"businessOneIsAutomated",
 	"businessTwoIsAutomated",
 	"businessThreeIsAutomated",
-}
+	"businessOneMsPerHarvest",
+	"businessTwoMsPerHarvest",
+	"businessThreeMsPerHarvest",
+	"businessOneCoinsEarnedPerHarvest",
+	"businessTwoCoinsEarnedPerHarvest",
+	"businessThreeCoinsEarnedPerHarvest",
+	"businessOneCoinsToLevelUp",
+	"businessTwoCoinsToLevelUp",
+	"businessThreeCoinsToLevelUp",
+];
 
 export interface GameState {
 	updatedAt: number; // unix
@@ -19,6 +29,23 @@ export interface GameState {
 	businessOneIsAutomated: boolean,
 	businessTwoIsAutomated: boolean,
 	businessThreeIsAutomated: boolean,
+	businessOneMsPerHarvest: number,
+	businessTwoMsPerHarvest: number,
+	businessThreeMsPerHarvest: number,
+	businessOneCoinsEarnedPerHarvest: number,
+	businessTwoCoinsEarnedPerHarvest: number,
+	businessThreeCoinsEarnedPerHarvest: number,
+	businessOneCoinsToLevelUp: number,
+	businessTwoCoinsToLevelUp: number,
+	businessThreeCoinsToLevelUp: number,
+}
+
+export interface BusinessStats {
+	level: number;
+	msPerHarvest: number;
+	isAutomated: boolean;
+	coinsEarnedPerHarvest: number;
+	coinsToLevelUp: number;
 }
 
 function getLocalStorageKeyName(objectKey: string): string {
@@ -43,16 +70,16 @@ export function setJfcUserId(userId: string): void {
 }
 
 export function updateGameState(gameState: Partial<GameState>) {
-		for (const key of Object.keys(gameState)) {
-			localStorage.setItem(getLocalStorageKeyName(key), String(gameState[key]));
-		}
+	for (const key of Object.keys(gameState)) {
+		localStorage.setItem(getLocalStorageKeyName(key), String(gameState[key]));
+	}
 
-		localStorage.setItem(getLocalStorageKeyName("updatedAt"), `${Date.now() / 1000}`);
+	localStorage.setItem(getLocalStorageKeyName("updatedAt"), `${Date.now() / 1000}`);
 }
 
-export function getGameState(): Partial<GameState> {
+export function getGameState(keysToGet: string[] = GAME_STATE_PROPERTIES): Partial<GameState> {
 	const gameState: Partial<GameState> = {};
-	for (const key of Object.keys(GAME_STATE_PROPERTIES)) {
+	for (const key of keysToGet) {
 		const property = localStorage.getItem(getLocalStorageKeyName(key));
 		if (!property) {
 			continue;
@@ -60,4 +87,17 @@ export function getGameState(): Partial<GameState> {
 		gameState[key] = property;
 	}
 	return gameState;
+}
+
+export function getSingleBusinessState(businessId: string): Partial<BusinessStats> {
+	const gameState = getGameState(GAME_STATE_PROPERTIES.filter(property => property.includes(businessId)));
+	const startIndex = businessId.length;
+	const singleBusinessStats: Partial<BusinessStats> = {};
+	for (const key of Object.keys(gameState)) {
+		const removePrefix = key.slice(startIndex);
+		const firstLetter = removePrefix[0].toLowerCase();
+		const newKey = `${firstLetter}${removePrefix.slice(1)}`;
+		singleBusinessStats[newKey] = gameState[key];
+	}
+	return singleBusinessStats;
 }
