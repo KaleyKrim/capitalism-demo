@@ -21,8 +21,6 @@ export interface GameState {
 	businessThreeIsAutomated: boolean,
 }
 
-
-
 function getLocalStorageKeyName(objectKey: string): string {
 	const firstLetter = objectKey.slice(0, 1);
 	const firstLetterCapitalized = firstLetter[0].toUpperCase();
