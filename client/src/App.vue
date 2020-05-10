@@ -6,7 +6,7 @@
 		<h1>✨Let's play Jellyfish Capitalist✨</h1>
 		<ul class="list-group">
 			<li class="list-group-item">Current Score: {{ totalScore }} </li>
-			<li class="list-group-item">Total Coins: {{ totalCoins }}</li>
+			<li class="list-group-item">Bank Balance: ${{ totalCoins }}</li>
 		</ul>
 	<div class="row">
 		<div class="col">
@@ -58,6 +58,7 @@ export default class App extends Vue {
 		// const api = new Api();
 		// api.postScore(this.totalScore);
 		localStorageTools.updateGameState({ totalScore: this.totalScore });
+
 	}
 
 	@Watch('totalCoins')
@@ -73,7 +74,6 @@ export default class App extends Vue {
 		// get scores from api
 
 		const gameState = localStorageTools.getGameState();
-		console.log("game state", gameState);
 		if (!gameState.updatedAt) {
 			return;
 		}
@@ -86,16 +86,14 @@ export default class App extends Vue {
 			this.totalCoins = Number(gameState.totalCoins);
 		}
 
-		const now = Date.now() / 1000;
-		const timeSinceLastUpdate = now - gameState.updatedAt;
 		const businessKeys = Object.keys(gameState).filter(key => key.includes("business"));
-		const earnedWhileAway = calculateEarnedWhileAway(timeSinceLastUpdate, businessKeys.map(key => ({ ...gameState[key] })));
+		const earnedWhileAway = calculateEarnedWhileAway(businessKeys.map(key => ({ ...gameState[key] })));
 		// TODO: notify user
 		this.updateCoins(earnedWhileAway);
 	}
 
 	updateCoins(amtToUpdate: number) {
-		this.totalCoins += amtToUpdate;
+		this.totalCoins = parseFloat((this.totalCoins + amtToUpdate).toFixed(2));
 	}
 
 	levelUp() {
