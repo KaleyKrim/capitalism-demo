@@ -4,7 +4,7 @@ import * as localStorage from "./localStorage";
 function getConfig(): AxiosRequestConfig {
 	const savedUserId = localStorage.getJfcUserId();
 	const config = {
-		baseURL: process.env.API_URL,
+		baseURL: process.env.VUE_APP_BASE_URL,
 		headers: {}
 	}
 
