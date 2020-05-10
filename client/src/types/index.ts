@@ -1,5 +1,6 @@
 export interface GameState {
 	updatedAt: number; // unix
+	userId: string;
 	totalCoins: number;
 	totalScore: number;
 	businessOne: BusinessStats;
