@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-	"build": "tsc",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,6 +14,8 @@
     "@types/redis": "^2.8.20",
     "@types/uuid": "^7.0.3",
     "async-redis": "^1.1.7",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "redis": "^3.0.2",
     "tedis": "^0.1.12",
