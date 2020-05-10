@@ -3,7 +3,7 @@ import * as localStorage from "./localStorage";
 
 function getConfig(): AxiosRequestConfig {
 	const savedUserId = localStorage.getJfcUserId();
-	let config = {
+	const config = {
 		baseURL: process.env.API_URL,
 		headers: {}
 	}
@@ -22,7 +22,7 @@ export class Api {
 	}
 
 	async registerUser(nickname: string): Promise<string> {
-		const res = await this.requester.post("/users");
+		const res = await this.requester.post("/users", { nickname });
 		return res.data.userId;
 	}
 
@@ -31,7 +31,7 @@ export class Api {
 		return res.data.nickname;
 	}
 
-	async getScores(): Promise<{ [nickname: string]: number; }[]> {
+	async getScores(): Promise<{ [nickname: string]: number }[]> {
 		const res = await this.requester.get("/scores");
 		return res.data.scores;
 	}
