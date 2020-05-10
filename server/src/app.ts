@@ -1,6 +1,6 @@
 import express from "express";
 import { User } from "./modules/User";
-import { Score } from "./modules/Score";
+// import { Score } from "./modules/Score";
 import { authenticator } from "./middlewares/authenticator";
 
 const app: express.Application = express();
@@ -21,7 +21,7 @@ app.post("/users", async(req, res) => {
 	res.send({ userId });
 });
 
-app.get("/scores", async(req, res) => {
+app.get("/scores", async(_req, _res) => {
 	// get player rankings
 });
 
@@ -30,14 +30,14 @@ app.use(authenticator);
 
 app.post("/scores", async(req, res) => {
 	const userId = <string>req.body.userId;
-
+	
 
 	// save user_id: level
 	// this occurs every time the user levels up
 	res.send("Hello....");
 });
 
-app.get("/", async(req, res) => {
+app.get("/", async(_req, res) => {
 	res.send("Hello....");
 });
 
