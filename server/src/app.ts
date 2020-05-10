@@ -1,10 +1,14 @@
 import express from "express";
 import { User } from "./modules/User";
-// import { Score } from "./modules/Score";
+import { Score } from "./modules/Score";
 import { authenticator } from "./middlewares/authenticator";
 import * as path from "path";
+import cors from "cors";
+import bodyParser from "body-parser";
 
 const app: express.Application = express();
+app.use(cors());
+app.use(bodyParser.json());
 
 app.post("/api/users", async(req, res) => {
 	const userModule = new User();
@@ -21,20 +25,20 @@ app.post("/api/users", async(req, res) => {
 	res.send({ userId });
 });
 
-app.get("/api/scores", async(_req, _res) => {
-	// get player rankings
+app.get("/api/scores", async(_req, res) => {
+	const scoreModule = new Score();
+	const ranking = await scoreModule.getAll();
+	res.send({ ranking });
 });
 
-// use authenticator after post /users, so middleware isn't applied to those routes
-// app.use(authenticator);
+app.post("/api/scores", authenticator, async(req, res) => {
+	const userId = <string>req.body.userId;
+	const score = req.body.score;
 
-app.post("/api/scores", authenticator, async(_req, res) => {
-	// const userId = <string>req.body.userId;
-	
+	const scoreModule = new Score();
+	const rank = await scoreModule.set(userId, score);
 
-	// save user_id: level
-	// this occurs every time the user levels up
-	res.send("Hello....");
+	res.send({ rank });
 });
 
 app.use("/", express.static(path.join(__dirname, "..", "..", "client", "dist")));
