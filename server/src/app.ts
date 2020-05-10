@@ -2,10 +2,11 @@ import express from "express";
 import { User } from "./modules/User";
 // import { Score } from "./modules/Score";
 import { authenticator } from "./middlewares/authenticator";
+import * as path from "path";
 
 const app: express.Application = express();
 
-app.post("/users", async(req, res) => {
+app.post("/api/users", async(req, res) => {
 	const userModule = new User();
 	const nickname = req.body.nickname.length ? req.body.nickname : "anon";
 	
@@ -20,15 +21,15 @@ app.post("/users", async(req, res) => {
 	res.send({ userId });
 });
 
-app.get("/scores", async(_req, _res) => {
+app.get("/api/scores", async(_req, _res) => {
 	// get player rankings
 });
 
 // use authenticator after post /users, so middleware isn't applied to those routes
-app.use(authenticator);
+// app.use(authenticator);
 
-app.post("/scores", async(req, res) => {
-	const userId = <string>req.body.userId;
+app.post("/api/scores", authenticator, async(_req, res) => {
+	// const userId = <string>req.body.userId;
 	
 
 	// save user_id: level
@@ -36,9 +37,7 @@ app.post("/scores", async(req, res) => {
 	res.send("Hello....");
 });
 
-app.get("/", async(_req, res) => {
-	res.send("Hello....");
-});
+app.use("/", express.static(path.join(__dirname, "..", "..", "client", "dist")));
 
 app.listen(3000, () => {
 	console.log("listening on port");
