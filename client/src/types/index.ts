@@ -13,4 +13,5 @@ export interface BusinessStats {
 	isAutomated: boolean;
 	coinsEarnedPerHarvest: number;
 	coinsToLevelUp: number;
+	collectedAt: number; // unix
 }
