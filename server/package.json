@@ -1,0 +1,22 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.6",
+    "@types/redis": "^2.8.20",
+    "@types/uuid": "^7.0.3",
+    "async-redis": "^1.1.7",
+    "express": "^4.17.1",
+    "redis": "^3.0.2",
+    "tedis": "^0.1.12",
+    "typescript": "^3.8.3",
+    "uuid": "^8.0.0"
+  }
+}
