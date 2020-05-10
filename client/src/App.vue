@@ -69,11 +69,19 @@ export default class App extends Vue {
 	async mounted() {
 		// check for userId. if it's not there, ask for nickname. post nickname
 
-		// const api = new Api();
+	// const api = new Api();
 		// const ranking = await api.getScores();
 		// get scores from api
 
 		const gameState = localStorageTools.getGameState();
+
+		if (!gameState.userId) {
+			const api = new Api();
+			const userId = await api.registerUser("fake nickanem");
+			console.log("userId", userId);
+			localStorageTools.updateGameState({ userId });
+		}
+
 		if (!gameState.updatedAt) {
 			return;
 		}
