@@ -1,9 +1,9 @@
 <template>
 	<div class="card text-center" style="width: 300px;">
 		<div class="card-header">
-			<img :src="getFullImgPath(imgPath)" />
+			<img :src="getFullImgPath()" />
 			{{ businessName }}
-			<img :src="getFullImgPath(imgPath)" />
+			<img :src="getFullImgPath()" />
 		</div>
 		<div class="card-body">
 			<p class="card-text">
@@ -34,45 +34,39 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Emit } from "vue-property-decorator";
-
-interface BusinessStats {
-	level?: number;
-	msPerHarvest?: number;
-	isAutomatic?: boolean;
-	coinsEarnedPerHarvest?: number;
-	coinsToLevelUp?: number;
-}
-
-const SPEED_BONUS_LEVELS = {
-	10: .75,
-	20: .85,
-	30: .90,
-	40: .95,
-};
-const increasedEarningsPerLevelUp = 1.05;
-const levelUpCostIncrease = 1.5;
+import { Component, Prop, Vue, Emit, Watch } from "vue-property-decorator";
+import * as localStorageTools from "../modules/localStorage";
+import { BusinessStats } from "../types";
+import { BUSINESS_MASTER_DATA } from "../types/constants";
 
 @Component
 export default class Business extends Vue {
 	@Prop()
-	private imgPath!: string;
-	@Prop()
-	private businessName!: string;
+	private businessId!: string;
 	@Prop()
 	private totalCoins!: number;
+	private businessName = BUSINESS_MASTER_DATA[this.businessId].name;
 	private notReadyToCollect = false;
 	// we will get this dynamically
 	private stats: BusinessStats = {
 		level: 0,
 		msPerHarvest: 10000,
 		coinsEarnedPerHarvest: 1,
-		isAutomatic: false,
+		isAutomated: false,
 		coinsToLevelUp: 5,
 	}
 
-	private getFullImgPath(imgPath: string) {
-		return require(`../assets/${imgPath}`);
+	mounted() {
+		const businessStats = localStorageTools.getSingleBusinessState(this.businessId);
+		if (businessStats) {
+			for (const key of Object.keys(businessStats)) {
+				this.stats[key] = businessStats[key];
+			}
+		}
+	}
+
+	private getFullImgPath() {
+		return require(`../assets/businesses/${this.businessId}.png`);
 	}
 
 	private startTimer() {
@@ -81,17 +75,18 @@ export default class Business extends Vue {
 		}, this.stats.msPerHarvest);
 	}
 
-	private getNewStatsForLevelUp(): BusinessStats {
+	// move to calculation module
+	private getNewStatsForLevelUp(): Partial<BusinessStats> {
 		const newLevel = this.stats.level + 1;
-		const isSpeedBonusLevel = SPEED_BONUS_LEVELS[newLevel] ? true : false;
+		const speedBonusFactor = BUSINESS_MASTER_DATA[this.businessId].speedBonusLevels[newLevel];
 		const newStats = {
 			level: newLevel,
-			coinsEarnedPerHarvest: this.stats.coinsEarnedPerHarvest * increasedEarningsPerLevelUp,
-			coinsToLevelUp: this.stats.coinsToLevelUp * levelUpCostIncrease,
+			coinsEarnedPerHarvest: parseFloat((this.stats.coinsEarnedPerHarvest * BUSINESS_MASTER_DATA[this.businessId].increasedEarningsPerLevelUp).toFixed(2)),
+			coinsToLevelUp: parseFloat((this.stats.coinsToLevelUp * BUSINESS_MASTER_DATA[this.businessId].levelUpCostIncrease).toFixed(2)),
 		};
 
-		if (isSpeedBonusLevel) {
-			newStats["msPerHarvest"] = this.stats.msPerHarvest * SPEED_BONUS_LEVELS[newLevel];
+		if (speedBonusFactor) {
+			newStats["msPerHarvest"] = this.stats.msPerHarvest * speedBonusFactor;
 		}
 
 		return newStats;
@@ -103,22 +98,23 @@ export default class Business extends Vue {
 		}
 
 		const newStats = this.getNewStatsForLevelUp();
-		this.emitLevelUp(newStats);
+
+		this.emitLevelUp();
 		for (const key of Object.keys(newStats)) {
 			this.stats[key] = newStats[key];
 		}
+		localStorageTools.updateGameState({ [this.businessId]: newStats });
 	}
 
-	private emitLevelUp(newStats: BusinessStats) {
+	private emitLevelUp() {
 		this.$emit("updateCoins", (this.stats.coinsToLevelUp * -1));
-		this.$emit("updateState", { businessName: this.businessName, ...newStats });
+		this.$emit("levelUp");
 	}
 
 	private emitEarnedCoins() {
-		console.log("hello!", this.notReadyToCollect);
 		this.notReadyToCollect = true;
-		console.log(this.notReadyToCollect);
 		this.$emit("updateCoins", this.stats.coinsEarnedPerHarvest);
+		console.log("update coins!");
 		this.startTimer();
 	}
 }
