@@ -4,6 +4,7 @@ export const GAME_STATE_PROPERTIES = [
 	"updatedAt",
 	"userId",
 	"totalCoins",
+	"totalScore",
 	"businessOne",
 	"businessTwo",
 	"businessThree",
@@ -15,15 +16,6 @@ export function getJfcUserId(): string | null {
 
 export function setJfcUserId(userId: string): void {
 	localStorage.setItem("userId", userId);
-}
-
-export function updateGameState(gameState: Partial<GameState>) {
-	for (const key of Object.keys(gameState)) {
-		const property = typeof gameState[key] === 'object' ? JSON.stringify(gameState[key]) : String(gameState[key]);
-		localStorage.setItem(key, property);
-	}
-
-	localStorage.setItem("updatedAt", `${Date.now() / 1000}`);
 }
 
 export function getGameState(keysToGet: string[] = GAME_STATE_PROPERTIES): Partial<GameState> {
@@ -39,6 +31,15 @@ export function getGameState(keysToGet: string[] = GAME_STATE_PROPERTIES): Parti
 		gameState[key] = property;
 	}
 	return gameState;
+}
+
+export function updateGameState(gameState: Partial<GameState>) {
+	for (const key of Object.keys(gameState)) {
+		const property = typeof gameState[key] === 'object' ? JSON.stringify(gameState[key]) : String(gameState[key]);
+		localStorage.setItem(key, property);
+	}
+
+	localStorage.setItem("updatedAt", `${Math.floor(Date.now() / 1000)}`);
 }
 
 export function getSingleBusinessState(businessId: string): Partial<BusinessStats> {
