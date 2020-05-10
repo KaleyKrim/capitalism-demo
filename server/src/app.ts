@@ -7,7 +7,6 @@ const app: express.Application = express();
 
 app.post("/users", async(req, res) => {
 	const userModule = new User();
-
 	const nickname = req.body.nickname.length ? req.body.nickname : "anon";
 	
 	let userId: string;
