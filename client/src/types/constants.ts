@@ -2,13 +2,20 @@ export const BUSINESS_MASTER_DATA = {
 	"businessOne": {
 		name: "Gummy Shop",
 		speedBonusLevels: {
-			10: .75,
+			10: .50,
 			20: .85,
 			30: .90,
 			40: .95,
 		},
-		increasedEarningsPerLevelUp: 1.05,
+		increasedEarningsPerLevelUp: 1.3,
 		levelUpCostIncrease: 1.5,
+		baseBusinessStats: {
+			level: 0,
+			msPerHarvest: 5000,
+			coinsEarnedPerHarvest: 1,
+			isAutomated: false,
+			coinsToLevelUp: 5,
+		}
 	},
 	"businessTwo": {
 		name: "Shaved Ice Shop",
@@ -18,8 +25,15 @@ export const BUSINESS_MASTER_DATA = {
 			30: .90,
 			40: .95,
 		},
-		increasedEarningsPerLevelUp: 1.05,
-		levelUpCostIncrease: 1.5,
+		increasedEarningsPerLevelUp: 1.3,
+		levelUpCostIncrease: 1.6,
+		baseBusinessStats: {
+			level: 0,
+			msPerHarvest: 10000,
+			coinsEarnedPerHarvest: 5,
+			isAutomated: false,
+			coinsToLevelUp: 15,
+		}
 	},
 	"businessThree": {
 		name: "Fancy Gummy Shop",
@@ -29,7 +43,14 @@ export const BUSINESS_MASTER_DATA = {
 			30: .90,
 			40: .95,
 		},
-		increasedEarningsPerLevelUp: 1.05,
-		levelUpCostIncrease: 1.5,
+		increasedEarningsPerLevelUp: 1.2,
+		levelUpCostIncrease: 1.9,
+		baseBusinessStats: {
+			level: 0,
+			msPerHarvest: 20000,
+			coinsEarnedPerHarvest: 20,
+			isAutomated: false,
+			coinsToLevelUp: 20,
+		}
 	}
 }
