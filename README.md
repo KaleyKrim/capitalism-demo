@@ -16,7 +16,7 @@ http://54.153.54.252:3000/
 
 ## Stack
 
-- Back end (./server/): TypeScript, Redis
+- Back end (./server/): TypeScript, Redis (deployed to AWS)
 - Front end (./client/): TypeScript, Vue
 
 ## Challenges
