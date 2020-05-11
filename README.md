@@ -26,4 +26,4 @@ Jellyfish Capitalist is an idle clicker game based on [Adventure Capitalist](htt
 - Use a managed service (Elasticache) instead of installing Redis to virtual computer.
 - Environment management
 - Use NGINX so users don't have to access port 3000 (yikes..)
-
+- Docker for Redis
