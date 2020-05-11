@@ -15,7 +15,8 @@ export const BUSINESS_MASTER_DATA = {
 			coinsEarnedPerHarvest: 1,
 			isAutomated: false,
 			coinsToLevelUp: 5,
-		}
+		},
+		costToHireManager: 10,
 	},
 	"businessTwo": {
 		name: "Shaved Ice Shop",
@@ -33,7 +34,8 @@ export const BUSINESS_MASTER_DATA = {
 			coinsEarnedPerHarvest: 5,
 			isAutomated: false,
 			coinsToLevelUp: 15,
-		}
+		},
+		costToHireManager: 100,
 	},
 	"businessThree": {
 		name: "Fancy Gummy Shop",
@@ -51,6 +53,7 @@ export const BUSINESS_MASTER_DATA = {
 			coinsEarnedPerHarvest: 20,
 			isAutomated: false,
 			coinsToLevelUp: 20,
-		}
+		},
+		costToHireManager: 110,
 	}
 }
