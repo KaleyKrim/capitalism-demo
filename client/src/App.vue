@@ -1,40 +1,67 @@
 <template>
 	<div id="app">
-		<img alt="" src="./assets/managers/jelly1.gif" />
-		<img alt="" src="./assets/managers/jelly2.gif" />
-		<img alt="" src="./assets/managers/jelly3.gif" />
-		<h1>✨Let's play Jellyfish Capitalist✨</h1>
-		<ul class="list-group">
-			<li class="list-group-item">Current Score: {{ totalScore }} </li>
-			<li class="list-group-item">Bank Balance: ${{ totalCoins }}</li>
-		</ul>
-	<div class="row">
-		<div class="col">
-			<Business 
-				businessId="businessOne"
-				:totalCoins="totalCoins"
-				@updateCoins="updateCoins($event)"
-				@levelUp="levelUp('businessOne')"
-			/>
+		<div class="row">
+			<div class="col">
+				<img alt="" src="./assets/managers/businessOneManager.gif" />
+				<img alt="" src="./assets/managers/businessTwoManager.gif" />
+				<img alt="" src="./assets/managers/businessThreeManager.gif" />
+				<h1>✨Jellyfish Capitalist✨</h1>
+			</div>
 		</div>
-		<div class="col">
-			<Business 
-				businessId="businessTwo"
-				:totalCoins="totalCoins"
-				@updateCoins="updateCoins($event)"
-				@levelUp="levelUp('businessTwo')"
-			/>
+		<div class="row">
+			<div class="col">
+				<ul class="list-group">
+					<li class="list-group-item">Current Score: {{ totalScore }} </li>
+					<li class="list-group-item">Bank Balance: ${{ totalCoins }}</li>
+				</ul>
+			</div>
 		</div>
-		<div class="col">
-			<Business 
-				businessId="businessThree"
-				:totalCoins="totalCoins"
-				@updateCoins="updateCoins($event)"
-				@levelUp="levelUp('businessThree')"
-			/>
+		<div class="row mt-4">
+			<div class="col">
+				<Business 
+					businessId="businessOne"
+					:totalCoins="totalCoins"
+					@updateCoins="updateCoins($event)"
+					@levelUp="levelUp('businessOne')"
+				/>
+			</div>
+			<div class="col">
+				<Business 
+					businessId="businessTwo"
+					:totalCoins="totalCoins"
+					@updateCoins="updateCoins($event)"
+					@levelUp="levelUp('businessTwo')"
+				/>
+			</div>
+			<div class="col">
+				<Business 
+					businessId="businessThree"
+					:totalCoins="totalCoins"
+					@updateCoins="updateCoins($event)"
+					@levelUp="levelUp('businessThree')"
+				/>
+			</div>
+			<div class="col">
+				<h2>Top Jellyfish Capitalists:</h2>
+				<table id="ranking" class="table table-striped table-dark">
+					<thead>
+						<tr>
+							<th scope="col">Rank</th>
+							<th scope="col">Name</th>
+							<th scope="col">Score</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(rank, index) in ranking" :key="index">
+							<th scope="row">{{ index + 1 }}</th>
+							<td>{{ rank.name }}</td>
+							<td>{{ rank.score }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
-</div>
 </template>
 
 <script lang="ts">
@@ -52,13 +79,10 @@ import { calculateEarnedWhileAway } from "./modules/calculation";
 export default class App extends Vue {
 	private totalCoins = 5;
 	private totalScore = 0;
-
+	private ranking: { name: string; score: number }[] = [];
 	@Watch('totalScore')
 	onTotalScoreChanged() {
-		// const api = new Api();
-		// api.postScore(this.totalScore);
 		localStorageTools.updateGameState({ totalScore: this.totalScore });
-
 	}
 
 	@Watch('totalCoins')
@@ -67,24 +91,7 @@ export default class App extends Vue {
 	}
 
 	async mounted() {
-		// check for userId. if it's not there, ask for nickname. post nickname
-
-	// const api = new Api();
-		// const ranking = await api.getScores();
-		// get scores from api
-
 		const gameState = localStorageTools.getGameState();
-
-		if (!gameState.userId) {
-			const api = new Api();
-			const userId = await api.registerUser("fake nickanem");
-			console.log("userId", userId);
-			localStorageTools.updateGameState({ userId });
-		}
-
-		if (!gameState.updatedAt) {
-			return;
-		}
 
 		if (gameState.totalScore) {
 			this.totalScore = Number(gameState.totalScore);
@@ -94,18 +101,45 @@ export default class App extends Vue {
 			this.totalCoins = Number(gameState.totalCoins);
 		}
 
-		const businessKeys = Object.keys(gameState).filter(key => key.includes("business"));
-		const earnedWhileAway = calculateEarnedWhileAway(businessKeys.map(key => ({ ...gameState[key] })));
-		// TODO: notify user
-		this.updateCoins(earnedWhileAway);
+		try {
+			const api = new Api();
+			this.ranking = await api.getScores();
+		} catch (e) {
+			console.error("server is offline");
+		}
+
+		const businessStats = Object.keys(gameState).filter(key => key.includes("business"));
+		let totalEarned = 0;
+		for (const business of businessStats) {
+			const earnedWhileAway = calculateEarnedWhileAway(gameState[business]);
+			if (earnedWhileAway.earnedWhileAway > 0 ) {
+				totalEarned = parseFloat((totalEarned + earnedWhileAway.earnedWhileAway).toFixed(2));
+			}
+		}
+		await this.$alert(`You earned $${totalEarned} while you were away!`);
+		this.updateCoins(totalEarned);
+
+		if (!gameState.userId) {
+			const nickname = await this.$prompt("Please enter a nickname for rankings");
+			try {
+				const api = new Api();
+				const userId = await api.registerUser(nickname);
+				localStorageTools.updateGameState({ userId });
+			} catch (e) {
+				console.error("server is offline");
+			}
+		}
 	}
 
 	updateCoins(amtToUpdate: number) {
 		this.totalCoins = parseFloat((this.totalCoins + amtToUpdate).toFixed(2));
 	}
 
-	levelUp() {
+	async levelUp() {
 		this.totalScore++;
+		const api = new Api();
+		await api.postScore(this.totalScore);
+		this.ranking = await api.getScores();
 	}
 }
 </script>
