@@ -31,12 +31,13 @@ export class Api {
 		return res.data.nickname;
 	}
 
-	async getScores(): Promise<{ [nickname: string]: number }[]> {
+	async getScores(): Promise<{ name: string; score: number }[]> {
 		const res = await this.requester.get("/scores");
 		return res.data.scores;
 	}
 
-	async postScore(score: number): Promise<void> {
-		await this.requester.post("/scores", { score });
+	async postScore(score: number): Promise<number> {
+		const res = await this.requester.post("/scores", { score });
+		return res.data.rank;
 	}
 }

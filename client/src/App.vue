@@ -67,7 +67,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from "vue-property-decorator";
 import Business from "./components/Business.vue";
-import { Api } from "./modules/requester";
+import { Api } from "./modules/api";
 import * as localStorageTools from "./modules/localStorage";
 import { calculateEarnedWhileAway } from "./modules/calculation";
 
