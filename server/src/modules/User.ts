@@ -12,13 +12,17 @@ export class User extends Base {
 	}
 
 	async create(nickname: string): Promise<string> {
-		const userId = this.generateUuid()
+		const userId = this.generateUuid();
 		await this.redis.hset(this.key, userId, nickname);
 		return userId;
 	}
 
 	async getNickname(userId: string): Promise<string | null> {
 		return this.redis.hget(this.key, userId);
+	}
+
+	async getMultipleNicknames(userIds: string[]): Promise<string[]> {
+		return (await this.redis.mget(this.key, ...userIds)).map(id => id.toString());
 	}
 
 	async exists(userId: string): Promise<boolean> {
