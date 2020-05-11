@@ -116,8 +116,11 @@ export default class App extends Vue {
 				totalEarned = parseFloat((totalEarned + earnedWhileAway.earnedWhileAway).toFixed(2));
 			}
 		}
-		await this.$alert(`You earned $${totalEarned} while you were away!`);
-		this.updateCoins(totalEarned);
+
+		if (totalEarned > 0) {
+			await this.$alert(`You earned $${totalEarned} while you were away!`);
+			this.updateCoins(totalEarned);
+		}
 
 		if (!gameState.userId) {
 			const nickname = await this.$prompt("Please enter a nickname for rankings");
