@@ -12,8 +12,8 @@ Jellyfish Capitalist is an idle clicker game based on [Adventure Capitalist](htt
 
 ## Stack
 
-- Back end: TypeScript, Redis
-- Front end: TypeScript, Vue
+- Back end (./server/): TypeScript, Redis
+- Front end (./client/): TypeScript, Vue
 
 ## Challenges
 
