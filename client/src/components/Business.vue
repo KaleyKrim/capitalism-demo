@@ -7,15 +7,15 @@
 		</div>
 		<div class="card-body">
 			<p class="card-text">
-				earns ${{ stats.coinsEarnedPerHarvest }} per {{ stats.msPerHarvest / 1000 }} seconds
+				earns ${{ stats.coinsEarnedPerHarvest }} every {{ stats.msPerHarvest / 1000 }} seconds
 			</p>
 			<button 
 				type="button" 
 				class="btn btn-info" 
-				:disabled="notReadyToCollect"
+				v-bind:class="{ disabled: notReadyToCollect}"
 				@click="emitEarnedCoins"
 			>
-				Collect
+				{{ stats.isAutomated ? "automated♪" : "Collect" }}
 			</button>
 
 			<button 
@@ -30,6 +30,19 @@
 		<div class="card-footer text-muted">
 			Level: {{ stats.level }}
 		</div>
+		<div class="card-footer text-muted">
+			<div v-if="stats.isAutomated">
+				Manager: <img :src="getFullManagerImgPath()" />
+			</div>
+			<button
+				v-else
+				type="button"
+				:disabled="totalCoins < costToHireManager"
+				@click="hireManager"
+				>
+				Hire manager for ${{ costToHireManager }}
+			</button>
+		</div>
 	</div>
 </template>
 
@@ -38,7 +51,7 @@ import { Component, Prop, Vue, Emit, Watch } from "vue-property-decorator";
 import * as localStorageTools from "../modules/localStorage";
 import { BusinessStats } from "../types";
 import { BUSINESS_MASTER_DATA } from "../types/constants";
-import { getNewStatsForLevelUp } from "../modules/calculation";
+import { getNewStatsForLevelUp, calculateEarnedWhileAway } from "../modules/calculation";
 
 @Component
 export default class Business extends Vue {
@@ -47,15 +60,14 @@ export default class Business extends Vue {
 	@Prop()
 	private totalCoins!: number;
 	private businessName = BUSINESS_MASTER_DATA[this.businessId].name;
-
-	private stats: BusinessStats =  { 
+	private costToHireManager = BUSINESS_MASTER_DATA[this.businessId].costToHireManager;
+	private stats: BusinessStats = {
 		...BUSINESS_MASTER_DATA[this.businessId].baseBusinessStats, 
 		collectedAt: 0,
 	};
 	private notReadyToCollect = false;
 
-
-	mounted() {
+	async mounted() {
 		const businessStats = localStorageTools.getSingleBusinessState(this.businessId);
 		if (!businessStats) {
 			return;
@@ -65,22 +77,39 @@ export default class Business extends Vue {
 			this.stats[key] = businessStats[key];
 		}
 
-		const timeSinceLastCollected = Math.round(Date.now() / 1000) - this.stats.collectedAt;
-		const msPerHarvestInSec = Math.round(this.stats.msPerHarvest / 1000);
-		const isNotReadyToCollect = timeSinceLastCollected < msPerHarvestInSec;
+		const earnedWhileAway = calculateEarnedWhileAway(businessStats);
+		const isNotReadyToCollect = earnedWhileAway.msUntilNextHarvest > 0;
+
+
+		if (this.stats.isAutomated) {
+			this.startTimer(this.stats.msPerHarvest);
+		}
+
 		if (isNotReadyToCollect) {
 			this.notReadyToCollect = true;
-			this.startTimer((msPerHarvestInSec - timeSinceLastCollected) * 1000);
+			this.startTimer(earnedWhileAway.msUntilNextHarvest + 1000);
+			return;
 		}
+
+		// if (this.stats.isAutomated && !isNotReadyToCollect) {
+		// 	this.emitEarnedCoins();
+		// }
 	}
 
 	private getFullImgPath() {
 		return require(`../assets/businesses/${this.businessId}.png`);
 	}
 
+	private getFullManagerImgPath() {
+		return require(`../assets/managers/${this.businessId}Manager.gif`);
+	}
+
 	private startTimer(time: number) {
 		setTimeout(() => {
 			this.notReadyToCollect = false;
+			if (this.stats.isAutomated) {
+				this.emitEarnedCoins();
+			}
 		}, time);
 	}
 
@@ -95,7 +124,7 @@ export default class Business extends Vue {
 		for (const key of Object.keys(newStats)) {
 			this.stats[key] = newStats[key];
 		}
-		localStorageTools.updateGameState({ [this.businessId]: newStats });
+		localStorageTools.updateGameState({ [this.businessId]: this.stats });
 	}
 
 	private emitLevelUp() {
@@ -109,6 +138,17 @@ export default class Business extends Vue {
 		this.notReadyToCollect = true;
 		this.$emit("updateCoins", this.stats.coinsEarnedPerHarvest);
 		this.startTimer(this.stats.msPerHarvest);
+	}
+
+	private hireManager() {
+		this.stats.isAutomated = true;
+		localStorageTools.updateGameState({ [this.businessId]: this.stats });
+		this.$emit("updateCoins", (this.costToHireManager * -1));
+		const untilNextHarvest = this.stats.collectedAt ? 
+			Math.round((this.stats.msPerHarvest - (Date.now() - (this.stats.collectedAt * 1000)))/ 1000) :
+			this.stats.msPerHarvest;
+
+		this.startTimer(untilNextHarvest);
 	}
 }
 </script>
