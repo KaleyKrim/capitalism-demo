@@ -10,6 +10,10 @@ Jellyfish Capitalist is an idle clicker game based on [Adventure Capitalist](htt
 - ✅ Collect money automatically earned after returning from closing the game
 - ✅ Register a nickname & participate in the Jellyfish Capitalist leaderboard
 
+## Demo
+
+http://54.153.54.252:3000/
+
 ## Stack
 
 - Back end (./server/): TypeScript, Redis
