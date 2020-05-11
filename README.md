@@ -21,10 +21,10 @@ http://54.153.54.252:3000/
 
 ## Challenges
 
-- I specialize in backend development, but idle games typically do not involve multiplayer interaction, and are not data/computationally intensive enough to require servers for user data. To justify building a server, I created a leaderboard feature. Users are ranked based on their combined score (the levels of all their businesses, combined). Game data **aside** from nicknames and scores is saved to local storage.
+- I specialize in backend development, and I intended for my solution to focus on the back-end. However, idle games typically do not involve multiplayer interaction, and are not data/computationally intensive enough to require servers for user data. To justify building a server, I created a leaderboard feature. Users are ranked based on their combined score (the levels of all their businesses, combined). Game data **aside** from nicknames and scores is saved to local storage.
 
 ## To do:
-(Or, things that I would do differently if I had more time/money).
+(Or, things I left out/that I would do differently if I had more time/money).
 
 - Not commit `client/dist/` to Github, and not serve it from `app.ts`, but deploy separately to S3.
 - Use a managed service (Elasticache) instead of installing Redis to virtual computer.
